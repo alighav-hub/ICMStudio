@@ -1,1 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motion Blur Spline Image Editor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Motion Blur Spline Image Editor</h1>
+      </header>
 
+      <main class="layout">
+        <section class="panel image-panel">
+          <div class="panel-header">
+            <span>Images</span>
+          </div>
+          <div class="canvas-wrap" id="outputWrap">
+            <div class="dual-canvases">
+              <div class="canvas-col">
+                <div class="canvas-title">Processed</div>
+                <canvas id="outputCanvas" aria-label="Blurred output canvas" tabindex="0"></canvas>
+              </div>
+              <div class="canvas-col">
+                <div class="canvas-title">Original</div>
+                <canvas id="originalCanvas" aria-label="Original image canvas" tabindex="0"></canvas>
+              </div>
+            </div>
+            <div class="canvas-hint" id="uploadHint">Tap either image to upload</div>
+          </div>
+          <div class="controls">
+            <label class="control">
+              <span>Blur Size</span>
+              <input id="blurSize" type="range" min="1" max="50" value="10" />
+              <span class="value" id="blurSizeVal">10 px</span>
+            </label>
+            <label class="control">
+              <span>Rotation</span>
+              <input id="rotation" type="range" min="0" max="360" value="0" />
+              <span class="value" id="rotationVal">0°</span>
+            </label>
+            <div class="export">
+              <button id="exportActual" class="btn">Export Actual</button>
+              <button id="exportMedium" class="btn">Export Medium</button>
+              <button id="exportSmall" class="btn">Export Small</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel spline-panel">
+          <div class="panel-header">
+            <span>Spline Editor</span>
+          </div>
+          <div class="canvas-wrap fixed" id="splineWrap">
+            <canvas id="splineCanvas" width="300" height="300" aria-label="Spline editor canvas" tabindex="0"></canvas>
+          </div>
+          <div class="legend">
+            <div><span class="legend-color path"></span>Path</div>
+            <div><span class="legend-color point"></span>Point</div>
+          </div>
+          <div class="tips">
+            <ul>
+              <li>Drag red squares to move points</li>
+              <li>Tap empty area to add point (≥ 10 px from others)</li>
+              <li>Double tap/click a point to remove it</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+
+      <input id="fileInput" type="file" accept="image/*" hidden />
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
