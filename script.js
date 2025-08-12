@@ -10,8 +10,7 @@
   const rotationSlider = document.getElementById('rotation');
   const rotationVal = document.getElementById('rotationVal');
   const uploadHint = document.getElementById('uploadHint');
-  const originalCanvas = document.getElementById('originalCanvas');
-  const originalCtx = originalCanvas.getContext('2d');
+  
 
   const exportActualBtn = document.getElementById('exportActual');
   const exportMediumBtn = document.getElementById('exportMedium');
@@ -71,26 +70,26 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function autoSizeCanvases() {
-    // Fit within container with max width 800 and maintain aspect ratio, optimized for mobile
-    const maxW = Math.min(800, Math.floor(window.innerWidth - 24));
+  function autoSizeOutputCanvas() {
+    // Fit within container with max width 600 and maintain aspect ratio, optimized for mobile
+    const maxW = Math.min(600, Math.floor(window.innerWidth - 24));
     if (!originalImage) {
       const h = Math.max(200, Math.floor(maxW * 0.66));
       setCanvasSizeForDisplay(outputCanvas, maxW, h);
-      setCanvasSizeForDisplay(originalCanvas, maxW, h);
+      
       return;
     }
     const ratio = originalImage.width / originalImage.height;
     displayWidth = Math.min(maxW, originalImage.width);
     displayHeight = Math.round(displayWidth / ratio);
     setCanvasSizeForDisplay(outputCanvas, displayWidth, displayHeight);
-    setCanvasSizeForDisplay(originalCanvas, displayWidth, displayHeight);
+    
   }
 
   function resizeSourceToDisplay() {
     if (!originalImage) return;
     const ratio = originalImage.width / originalImage.height;
-    const maxW = Math.min(800, Math.floor(window.innerWidth - 24));
+    const maxW = Math.min(600, Math.floor(window.innerWidth - 24));
     displayWidth = Math.min(maxW, originalImage.width);
     displayHeight = Math.round(displayWidth / ratio);
     if (resizedImageBitmap) resizedImageBitmap.close?.();
@@ -413,18 +412,15 @@
   function redrawOutput() {
     if (!originalImage || !resizedImageBitmap) {
       // Clear and hint
-      autoSizeCanvases();
+      autoSizeOutputCanvas();
       outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
-      originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+      
       return;
     }
 
     const blurSize = parseInt(blurSizeSlider.value, 10);
     setCanvasSizeForDisplay(outputCanvas, displayWidth, displayHeight);
-    setCanvasSizeForDisplay(originalCanvas, displayWidth, displayHeight);
-    originalCtx.clearRect(0, 0, displayWidth, displayHeight);
-    originalCtx.drawImage(resizedImageBitmap, 0, 0);
-
+    
     // Prepare a source canvas (resized image)
     const src = document.createElement('canvas');
     src.width = displayWidth;
@@ -457,7 +453,7 @@
       outputCtx.globalAlpha = alphaPerSample; // normalization to keep brightness similar
       outputCtx.drawImage(
         extCanvas,
-        blurSize + offX, blurSize + offY, displayWidth, displayHeight,
+        blurSize - offX, blurSize - offY, displayWidth, displayHeight,
         0, 0, displayWidth, displayHeight
       );
     }
@@ -483,7 +479,7 @@
   }
 
   async function resizeAndRender() {
-    autoSizeCanvases();
+    autoSizeOutputCanvas();
     resizedImageBitmap = await resizeSourceToDisplay();
     redrawOutput();
   }
@@ -528,7 +524,7 @@
       octx.globalAlpha = alphaPerSample;
       octx.drawImage(
         extCanvas,
-        Math.ceil(blurSize) + offX, Math.ceil(blurSize) + offY, targetW, targetH,
+        Math.ceil(blurSize) - offX, Math.ceil(blurSize) - offY, targetW, targetH,
         0, 0, targetW, targetH
       );
     }
@@ -542,9 +538,9 @@
 
   // Event bindings
   outputCanvas.addEventListener('click', triggerFileDialog);
-  originalCanvas.addEventListener('click', triggerFileDialog);
+  
   outputCanvas.addEventListener('touchend', (e) => { e.preventDefault(); triggerFileDialog(); }, { passive: false });
-  originalCanvas.addEventListener('touchend', (e) => { e.preventDefault(); triggerFileDialog(); }, { passive: false });
+  
   fileInput.addEventListener('change', onFileSelected);
 
   blurSizeSlider.addEventListener('input', () => setBlurSize(parseInt(blurSizeSlider.value, 10)));
@@ -575,7 +571,7 @@
   }
 
   window.addEventListener('resize', () => {
-    autoSizeCanvases();
+    autoSizeOutputCanvas();
     if (originalImage) redrawOutput();
   });
 
@@ -583,5 +579,5 @@
   initSplineCanvas();
   rotatePointsAroundCenter(0);
   drawSplineEditor();
-  autoSizeCanvases();
+  autoSizeOutputCanvas();
 })();
