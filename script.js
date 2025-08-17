@@ -1,5 +1,33 @@
-/* Motion Blur Spline Image Editor */
+/* ICM Studio SPA */
 (() => {
+  // Routing / menu
+  const routes = Array.from(document.querySelectorAll('.route'));
+  const sideNav = document.getElementById('sideNav');
+  const globalMenuBtn = document.getElementById('globalMenuBtn');
+  const closeNav = document.getElementById('closeNav');
+  const studioMenuBtn = document.getElementById('studioMenuBtn');
+  function activateRoute(name) {
+    routes.forEach(r => r.classList.remove('active'));
+    const el = document.getElementById(name);
+    if (el) el.classList.add('active');
+    if (name === 'studio') {
+      // defer resize to allow layout to settle
+      setTimeout(() => { autoSizeCanvases(); redrawOutput(); }, 0);
+    }
+  }
+  function handleNavClick(e) {
+    const target = e.target.closest('[data-nav]');
+    if (!target) return;
+    e.preventDefault();
+    const name = target.getAttribute('data-nav');
+    activateRoute(name);
+    sideNav.classList.remove('open');
+  }
+  document.addEventListener('click', handleNavClick);
+  globalMenuBtn.addEventListener('click', () => sideNav.classList.add('open'));
+  closeNav.addEventListener('click', () => sideNav.classList.remove('open'));
+  // studioMenuBtn removed from UI
+
   const outputCanvas = document.getElementById('outputCanvas');
   const outputCtx = outputCanvas.getContext('2d');
   const splineCanvas = document.getElementById('splineCanvas');
@@ -10,27 +38,50 @@
   const rotationSlider = document.getElementById('rotation');
   const rotationVal = document.getElementById('rotationVal');
   const uploadHint = document.getElementById('uploadHint');
-  const originalCanvas = document.getElementById('originalCanvas');
-  const originalCtx = originalCanvas.getContext('2d');
 
   const exportActualBtn = document.getElementById('exportActual');
   const exportMediumBtn = document.getElementById('exportMedium');
   const exportSmallBtn = document.getElementById('exportSmall');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const outputWrap = document.getElementById('outputWrap');
+  // Contact form
+  const contactForm = document.getElementById('contactForm');
+  const contactStatus = document.getElementById('contactStatus');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const comment = document.getElementById('comment').value.trim();
+      if (!name || !comment) { contactStatus.textContent = 'Please fill name and comment.'; return; }
+      const subject = encodeURIComponent(`[ICMStudio] ${name}`);
+      const body = encodeURIComponent(`${comment}${email ? "\n\nFrom: " + email : ''}`);
+      const mailto = `mailto:icm.blurstudio@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = mailto;
+      contactStatus.textContent = 'Your message was sent.';
+      contactForm.reset();
+    });
+  }
 
   // State
   let originalImage = null; // HTMLImageElement
   let resizedImageBitmap = null; // ImageBitmap for performance
   let displayWidth = 0;
   let displayHeight = 0;
+  // Crop state in display pixels
+  let cropLeft = 0, cropTop = 0, cropRight = 0, cropBottom = 0;
+  const minCropSize = 20;
+  let isCropping = false;
+  let activeCropEdge = null; // 'left' | 'right' | 'top' | 'bottom'
   
 
   // Spline state
-  const splineFrameSize = 300; // canvas is 300x300
+  const splineFrameSize = 200; // canvas is 200x200 in UI
   const mobileFrameSize = 200; // target logical size for initial points area
   let basePoints = [ // initial 3 points inside ~200x200 area centered
-    { x: 50, y: 150 },
-    { x: 150, y: 50 },
-    { x: 250, y: 150 },
+    { x: 40, y: 160 },
+    { x: 100, y: 40 },
+    { x: 160, y: 160 },
   ];
   // Keep original (unrotated) base points to apply rotation relative to original
   const basePointsOriginal = basePoints.map(p => ({ x: p.x, y: p.y }));
@@ -72,25 +123,23 @@
   }
 
   function autoSizeCanvases() {
-    // Fit within container with max width 800 and maintain aspect ratio, optimized for mobile
-    const maxW = Math.min(800, Math.floor(window.innerWidth - 24));
+    // Fit within container; keep small (around 300px) for speed
+    const maxW = Math.min(300, Math.floor(window.innerWidth - 32));
     if (!originalImage) {
-      const h = Math.max(200, Math.floor(maxW * 0.66));
+      const h = Math.max(180, Math.floor(maxW * 0.66));
       setCanvasSizeForDisplay(outputCanvas, maxW, h);
-      setCanvasSizeForDisplay(originalCanvas, maxW, h);
       return;
     }
     const ratio = originalImage.width / originalImage.height;
     displayWidth = Math.min(maxW, originalImage.width);
     displayHeight = Math.round(displayWidth / ratio);
     setCanvasSizeForDisplay(outputCanvas, displayWidth, displayHeight);
-    setCanvasSizeForDisplay(originalCanvas, displayWidth, displayHeight);
   }
 
   function resizeSourceToDisplay() {
     if (!originalImage) return;
     const ratio = originalImage.width / originalImage.height;
-    const maxW = Math.min(800, Math.floor(window.innerWidth - 24));
+    const maxW = Math.min(300, Math.floor(window.innerWidth - 32));
     displayWidth = Math.min(maxW, originalImage.width);
     displayHeight = Math.round(displayWidth / ratio);
     if (resizedImageBitmap) resizedImageBitmap.close?.();
@@ -117,11 +166,11 @@
     // Draw background grid / frame
     ctx.strokeStyle = '#2b2b2b';
     ctx.lineWidth = 1;
-    for (let x = 0; x <= 300; x += 50) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 300); ctx.stroke();
+    for (let x = 0; x <= 200; x += 50) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 200); ctx.stroke();
     }
-    for (let y = 0; y <= 300; y += 50) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(300, y); ctx.stroke();
+    for (let y = 0; y <= 200; y += 50) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(200, y); ctx.stroke();
     }
 
     // Draw Catmull-Rom spline
@@ -415,15 +464,11 @@
       // Clear and hint
       autoSizeCanvases();
       outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
-      originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
       return;
     }
 
     const blurSize = parseInt(blurSizeSlider.value, 10);
     setCanvasSizeForDisplay(outputCanvas, displayWidth, displayHeight);
-    setCanvasSizeForDisplay(originalCanvas, displayWidth, displayHeight);
-    originalCtx.clearRect(0, 0, displayWidth, displayHeight);
-    originalCtx.drawImage(resizedImageBitmap, 0, 0);
 
     // Prepare a source canvas (resized image)
     const src = document.createElement('canvas');
@@ -451,8 +496,8 @@
     for (let i = 0; i < numSamples; i++) {
       const f = (i / (numSamples - 1)) - 0.5; // -0.5..0.5
       const dir = dirs[i] || { x: 1, y: 0 };
-      const offX = Math.round(dir.x * blurSize * f);
-      const offY = Math.round(dir.y * blurSize * f);
+      const offX = Math.round(-dir.x * blurSize * f);
+      const offY = Math.round(-dir.y * blurSize * f);
 
       outputCtx.globalAlpha = alphaPerSample; // normalization to keep brightness similar
       outputCtx.drawImage(
@@ -463,6 +508,9 @@
     }
 
     outputCtx.globalAlpha = 1;
+
+    // Draw cropping overlay and guides
+    drawCropOverlay();
   }
 
   function triggerFileDialog() { fileInput.click(); }
@@ -474,7 +522,7 @@
     const img = new Image();
     img.onload = async () => {
       originalImage = img;
-      uploadHint.style.display = 'none';
+      if (uploadHint) uploadHint.style.display = 'none';
       await resizeAndRender();
       URL.revokeObjectURL(url);
     };
@@ -485,6 +533,8 @@
   async function resizeAndRender() {
     autoSizeCanvases();
     resizedImageBitmap = await resizeSourceToDisplay();
+    // Initialize crop to full image
+    cropLeft = 0; cropTop = 0; cropRight = displayWidth; cropBottom = displayHeight;
     redrawOutput();
   }
 
@@ -522,8 +572,8 @@
     for (let i = 0; i < numSamples; i++) {
       const f = (i / (numSamples - 1)) - 0.5;
       const dir = dirs[i] || { x: 1, y: 0 };
-      const offX = Math.round(dir.x * blurSize * f);
-      const offY = Math.round(dir.y * blurSize * f);
+      const offX = Math.round(-dir.x * blurSize * f);
+      const offY = Math.round(-dir.y * blurSize * f);
 
       octx.globalAlpha = alphaPerSample;
       octx.drawImage(
@@ -534,17 +584,119 @@
     }
     octx.globalAlpha = 1;
 
+    // Apply crop scaled to target size
+    const sf = scaleFactor;
+    const sx = Math.max(0, Math.round(cropLeft * sf));
+    const sy = Math.max(0, Math.round(cropTop * sf));
+    const sw = Math.max(1, Math.round((cropRight - cropLeft) * sf));
+    const sh = Math.max(1, Math.round((cropBottom - cropTop) * sf));
+
+    const finalOut = document.createElement('canvas');
+    finalOut.width = sw;
+    finalOut.height = sh;
+    const fctx = finalOut.getContext('2d');
+    fctx.drawImage(out, sx, sy, sw, sh, 0, 0, sw, sh);
+
     const link = document.createElement('a');
     link.download = `motion-blur-${Date.now()}.png`;
-    link.href = out.toDataURL('image/png');
+    link.href = finalOut.toDataURL('image/png');
     link.click();
   }
 
+  // Crop overlay and interaction
+  function drawCropOverlay() {
+    if (displayWidth <= 0 || displayHeight <= 0) return;
+    // Ensure crop bounds valid
+    cropLeft = clamp(cropLeft, 0, displayWidth - minCropSize);
+    cropTop = clamp(cropTop, 0, displayHeight - minCropSize);
+    cropRight = clamp(cropRight, cropLeft + minCropSize, displayWidth);
+    cropBottom = clamp(cropBottom, cropTop + minCropSize, displayHeight);
+
+    // Shade outside crop
+    outputCtx.save();
+    outputCtx.fillStyle = 'rgba(0,0,0,0.45)';
+    // Top
+    outputCtx.fillRect(0, 0, displayWidth, cropTop);
+    // Bottom
+    outputCtx.fillRect(0, cropBottom, displayWidth, displayHeight - cropBottom);
+    // Left
+    outputCtx.fillRect(0, cropTop, cropLeft, cropBottom - cropTop);
+    // Right
+    outputCtx.fillRect(cropRight, cropTop, displayWidth - cropRight, cropBottom - cropTop);
+
+    // Draw crop border
+    outputCtx.strokeStyle = '#cfcfcf';
+    outputCtx.lineWidth = 1;
+    outputCtx.strokeRect(cropLeft + 0.5, cropTop + 0.5, (cropRight - cropLeft) - 1, (cropBottom - cropTop) - 1);
+
+    // Edge handles
+    outputCtx.fillStyle = '#e6e6e6';
+    const handle = 6;
+    // Midpoints of edges
+    outputCtx.fillRect(cropLeft - handle/2, (cropTop + cropBottom)/2 - handle/2, handle, handle);
+    outputCtx.fillRect(cropRight - handle/2, (cropTop + cropBottom)/2 - handle/2, handle, handle);
+    outputCtx.fillRect((cropLeft + cropRight)/2 - handle/2, cropTop - handle/2, handle, handle);
+    outputCtx.fillRect((cropLeft + cropRight)/2 - handle/2, cropBottom - handle/2, handle, handle);
+    outputCtx.restore();
+  }
+
+  function cropHitTest(pos, tolerance = 12) {
+    const withinV = pos.y >= cropTop && pos.y <= cropBottom;
+    const withinH = pos.x >= cropLeft && pos.x <= cropRight;
+    if (withinV && Math.abs(pos.x - cropLeft) <= tolerance) return 'left';
+    if (withinV && Math.abs(pos.x - cropRight) <= tolerance) return 'right';
+    if (withinH && Math.abs(pos.y - cropTop) <= tolerance) return 'top';
+    if (withinH && Math.abs(pos.y - cropBottom) <= tolerance) return 'bottom';
+    return null;
+  }
+
+  function onCropPointerDown(evt) {
+    if (!resizedImageBitmap) { triggerFileDialog(); return; }
+    const pos = toLocalPos(evt, outputCanvas);
+    const edge = cropHitTest(pos);
+    if (edge) {
+      evt.preventDefault();
+      activeCropEdge = edge;
+      isCropping = true;
+    } else {
+      // If tap not on edge, start upload
+      // Allow canvas tap to upload per spec
+      // But do not block drag initialization intentionally on edges only
+    }
+  }
+
+  function onCropPointerMove(evt) {
+    if (!isCropping || !activeCropEdge) return;
+    evt.preventDefault();
+    const pos = toLocalPos(evt, outputCanvas);
+    if (activeCropEdge === 'left') {
+      cropLeft = Math.min(Math.max(0, pos.x), cropRight - minCropSize);
+    } else if (activeCropEdge === 'right') {
+      cropRight = Math.max(Math.min(displayWidth, pos.x), cropLeft + minCropSize);
+    } else if (activeCropEdge === 'top') {
+      cropTop = Math.min(Math.max(0, pos.y), cropBottom - minCropSize);
+    } else if (activeCropEdge === 'bottom') {
+      cropBottom = Math.max(Math.min(displayHeight, pos.y), cropTop + minCropSize);
+    }
+    redrawOutput();
+  }
+
+  function onCropPointerUp(evt) {
+    if (!isCropping) return;
+    isCropping = false;
+    activeCropEdge = null;
+  }
+
   // Event bindings
-  outputCanvas.addEventListener('click', triggerFileDialog);
-  originalCanvas.addEventListener('click', triggerFileDialog);
-  outputCanvas.addEventListener('touchend', (e) => { e.preventDefault(); triggerFileDialog(); }, { passive: false });
-  originalCanvas.addEventListener('touchend', (e) => { e.preventDefault(); triggerFileDialog(); }, { passive: false });
+  // Remove tap-to-upload to avoid interference with cropping
+  if (uploadBtn) uploadBtn.addEventListener('click', triggerFileDialog);
+  // Crop interaction bindings
+  outputCanvas.addEventListener('mousedown', onCropPointerDown);
+  window.addEventListener('mousemove', onCropPointerMove);
+  window.addEventListener('mouseup', onCropPointerUp);
+  outputCanvas.addEventListener('touchstart', (e) => { onCropPointerDown(e); }, { passive: false });
+  window.addEventListener('touchmove', onCropPointerMove, { passive: false });
+  window.addEventListener('touchend', onCropPointerUp, { passive: false });
   fileInput.addEventListener('change', onFileSelected);
 
   blurSizeSlider.addEventListener('input', () => setBlurSize(parseInt(blurSizeSlider.value, 10)));
@@ -567,10 +719,10 @@
   // Initialize spline canvas DPR scaling
   function initSplineCanvas() {
     const dpr = window.devicePixelRatio || 1;
-    splineCanvas.width = Math.round(300 * dpr);
-    splineCanvas.height = Math.round(300 * dpr);
-    splineCanvas.style.width = '300px';
-    splineCanvas.style.height = '300px';
+    splineCanvas.width = Math.round(200 * dpr);
+    splineCanvas.height = Math.round(200 * dpr);
+    splineCanvas.style.width = '200px';
+    splineCanvas.style.height = '200px';
     splineCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
@@ -584,4 +736,5 @@
   rotatePointsAroundCenter(0);
   drawSplineEditor();
   autoSizeCanvases();
+  activateRoute('home');
 })();

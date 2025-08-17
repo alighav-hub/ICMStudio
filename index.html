@@ -3,70 +3,146 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Motion Blur Spline Image Editor</title>
+    <title>ICM Studio</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div id="app">
-      <header>
-        <h1>Motion Blur Spline Image Editor</h1>
-      </header>
+      <button id="globalMenuBtn" class="hamburger" aria-label="Open menu" title="Menu">
+        <span></span><span></span><span></span>
+      </button>
 
-      <main class="layout">
-        <section class="panel image-panel">
-          <div class="panel-header">
-            <span>Images</span>
+      <nav id="sideNav" class="side-nav" aria-label="Main navigation">
+        <button id="closeNav" class="close-nav" aria-label="Close menu">×</button>
+        <a href="#home" data-nav="home">Home</a>
+        <a href="#studio" data-nav="studio">ICM Studio</a>
+        <a href="#learning" data-nav="learning">Learning</a>
+        <a href="#contact" data-nav="contact">Contact</a>
+      </nav>
+
+      <main id="content">
+        <section id="home" class="route active">
+          <header class="route-header">
+            <h1>ICM Photography</h1>
+          </header>
+          <div class="hero">
+            <div class="hero-bg" aria-hidden="true"></div>
+            <div class="hero-content">
+              <p>
+                Intentional Camera Movement (ICM) is a creative technique where you move the camera during exposure to create abstract, painterly images.
+                Explore, experiment, and craft motion with light.
+              </p>
+              <a class="btn" data-nav="studio">Open ICM Studio</a>
+            </div>
           </div>
-          <div class="canvas-wrap" id="outputWrap">
-            <div class="dual-canvases">
-              <div class="canvas-col">
-                <div class="canvas-title">Processed</div>
-                <canvas id="outputCanvas" aria-label="Blurred output canvas" tabindex="0"></canvas>
-              </div>
-              <div class="canvas-col">
-                <div class="canvas-title">Original</div>
-                <canvas id="originalCanvas" aria-label="Original image canvas" tabindex="0"></canvas>
+          <div class="home-gallery">
+            <div class="home-img" aria-label="Placeholder image 1"></div>
+            <div class="home-img" aria-label="Placeholder image 2"></div>
+            <div class="home-img" aria-label="Placeholder image 3"></div>
+          </div>
+        </section>
+
+        <section id="studio" class="route">
+          <header class="route-header">
+            <h1>ICM Studio</h1>
+          </header>
+
+          <div class="studio-layout">
+            <div class="menu-frame">
+              <div class="menu-left"></div>
+              <div class="menu-right">
+                <div class="export">
+                  <button id="uploadBtn" class="btn">Upload</button>
+                  <button id="exportActual" class="btn">Export Actual</button>
+                  <button id="exportMedium" class="btn">Export Medium</button>
+                  <button id="exportSmall" class="btn">Export Small</button>
+                </div>
               </div>
             </div>
-            <div class="canvas-hint" id="uploadHint">Tap either image to upload</div>
-          </div>
-          <div class="controls">
-            <label class="control">
-              <span>Blur Size</span>
-              <input id="blurSize" type="range" min="1" max="50" value="10" />
-              <span class="value" id="blurSizeVal">10 px</span>
-            </label>
-            <label class="control">
-              <span>Rotation</span>
-              <input id="rotation" type="range" min="0" max="360" value="0" />
-              <span class="value" id="rotationVal">0°</span>
-            </label>
-            <div class="export">
-              <button id="exportActual" class="btn">Export Actual</button>
-              <button id="exportMedium" class="btn">Export Medium</button>
-              <button id="exportSmall" class="btn">Export Small</button>
+
+            <div class="image-frame">
+              <div class="canvas-wrap" id="outputWrap">
+                <canvas id="outputCanvas" aria-label="Processed image canvas" tabindex="0"></canvas>
+              </div>
+            </div>
+
+            <div class="adjust-frame">
+              <div class="panel controls-panel">
+                <div class="controls">
+                  <label class="control">
+                    <span>Blur Size</span>
+                    <input id="blurSize" type="range" min="1" max="50" value="10" />
+                    <span class="value" id="blurSizeVal">10 px</span>
+                  </label>
+                  <label class="control">
+                    <span>Rotation</span>
+                    <input id="rotation" type="range" min="0" max="360" value="0" />
+                    <span class="value" id="rotationVal">0°</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="panel spline-panel">
+                <div class="panel-header">
+                  <span>Spline Editor</span>
+                </div>
+                <div class="canvas-wrap fixed" id="splineWrap">
+                  <canvas id="splineCanvas" width="200" height="200" aria-label="Spline editor canvas" tabindex="0"></canvas>
+                </div>
+                <div class="legend">
+                  <div><span class="legend-color path"></span>Path</div>
+                  <div><span class="legend-color point"></span>Point</div>
+                </div>
+                <div class="tips">
+                  <ul>
+                    <li>Drag red squares to move points</li>
+                    <li>Tap empty area to add point (≥ 10 px from others)</li>
+                    <li>Double tap/click a point to remove it</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="panel spline-panel">
-          <div class="panel-header">
-            <span>Spline Editor</span>
-          </div>
-          <div class="canvas-wrap fixed" id="splineWrap">
-            <canvas id="splineCanvas" width="300" height="300" aria-label="Spline editor canvas" tabindex="0"></canvas>
-          </div>
-          <div class="legend">
-            <div><span class="legend-color path"></span>Path</div>
-            <div><span class="legend-color point"></span>Point</div>
-          </div>
-          <div class="tips">
+        <section id="learning" class="route">
+          <header class="route-header">
+            <h1>Learning</h1>
+          </header>
+          <div class="copy">
+            <p>
+              Use the ICM Studio to upload an image, adjust the blur size and rotation, and shape the motion with the spline.
+              Drag spline points to change the path; add points by tapping; remove with a double click/tap. Crop by dragging each edge of the image.
+            </p>
             <ul>
-              <li>Drag red squares to move points</li>
-              <li>Tap empty area to add point (≥ 10 px from others)</li>
-              <li>Double tap/click a point to remove it</li>
+              <li>Upload: use the Upload button</li>
+              <li>Blur Size: extent of motion along the path</li>
+              <li>Rotation: rotates the spline around its center</li>
+              <li>Export: Actual, Medium, or Small; effects and crop are preserved and scaled</li>
             </ul>
           </div>
+        </section>
+
+        <section id="contact" class="route">
+          <header class="route-header">
+            <h1>Contact</h1>
+          </header>
+          <form id="contactForm" class="contact-form">
+            <label>
+              <span>Name</span>
+              <input type="text" id="name" required />
+            </label>
+            <label>
+              <span>Email (optional)</span>
+              <input type="email" id="email" />
+            </label>
+            <label>
+              <span>Comment</span>
+              <textarea id="comment" rows="5" required></textarea>
+            </label>
+            <button type="submit" class="btn">Send</button>
+            <div id="contactStatus" class="status" aria-live="polite"></div>
+          </form>
         </section>
       </main>
 
@@ -76,3 +152,4 @@
     <script src="script.js"></script>
   </body>
 </html>
+
