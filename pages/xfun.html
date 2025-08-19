@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Xfun</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <button id="globalMenuBtn" class="hamburger" aria-label="Open menu" title="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav id="sideNav" class="side-nav" aria-label="Main navigation">
+        <button id="closeNav" class="close-nav" aria-label="Close menu">×</button>
+        <a href="../index.html#home" data-nav="home">Home</a>
+        <div class="nav-group">
+          <a href="#" class="nav-group-toggle">Effects</a>
+          <div class="nav-group-menu">
+            <a href="icm_studio.html" data-nav="studio">ICM Studio</a>
+            <a href="light_leak.html" data-nav="light-leak">Light Leak</a>
+            <a href="double_exposure.html" data-nav="double-exposure">Double Exposure</a>
+            <a href="tilt_shift.html" data-nav="tilt-shift">Tilt Shift</a>
+            <a href="chromatic.html" data-nav="chromatic">Chromatic</a>
+            <a href="xfun.html" data-nav="xfun">Xfun</a>
+          </div>
+        </div>
+        <a href="../index.html#learning" data-nav="learning">Learning</a>
+        <a href="../index.html#contact" data-nav="contact">Contact</a>
+      </nav>
+
+      <main id="content">
+        <section id="xfun" class="route active">
+          <header class="route-header">
+            <h1>Xfun Effect</h1>
+          </header>
+          <div class="app-content">
+            <p>Content for Xfun effect app goes here.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="../script.js" defer></script>
+  </body>
+</html>

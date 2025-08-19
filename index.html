@@ -15,7 +15,17 @@
       <nav id="sideNav" class="side-nav" aria-label="Main navigation">
         <button id="closeNav" class="close-nav" aria-label="Close menu">×</button>
         <a href="#home" data-nav="home">Home</a>
-        <a href="#studio" data-nav="studio">ICM Studio</a>
+        <div class="nav-group">
+          <a href="#" class="nav-group-toggle">Effects</a>
+          <div class="nav-group-menu">
+            <a href="pages/icm_studio.html" data-nav="studio">ICM Studio</a>
+            <a href="pages/light_leak.html" data-nav="light-leak">Light Leak</a>
+            <a href="pages/double_exposure.html" data-nav="double-exposure">Double Exposure</a>
+            <a href="pages/tilt_shift.html" data-nav="tilt-shift">Tilt Shift</a>
+            <a href="pages/chromatic.html" data-nav="chromatic">Chromatic</a>
+            <a href="pages/xfun.html" data-nav="xfun">Xfun</a>
+          </div>
+        </div>
         <a href="#learning" data-nav="learning">Learning</a>
         <a href="#contact" data-nav="contact">Contact</a>
       </nav>
@@ -23,85 +33,41 @@
       <main id="content">
         <section id="home" class="route active">
           <header class="route-header">
-            <h1>ICM Photography</h1>
+            <h1>Photo Effects Studio</h1>
           </header>
           <div class="hero">
             <div class="hero-bg" aria-hidden="true"></div>
             <div class="hero-content">
               <p>
-                Intentional Camera Movement (ICM) is a creative technique where you move the camera during exposure to create abstract, painterly images.
-                Explore, experiment, and craft motion with light.
+                Explore, experiment, and craft stunning photo effects with our collection of creative tools.
               </p>
-              <a class="btn" data-nav="studio">Open ICM Studio</a>
             </div>
           </div>
-          <div class="home-gallery">
-            <div class="home-img" aria-label="Placeholder image 1"></div>
-            <div class="home-img" aria-label="Placeholder image 2"></div>
-            <div class="home-img" aria-label="Placeholder image 3"></div>
-          </div>
-        </section>
-
-        <section id="studio" class="route">
-          <header class="route-header">
-            <h1>ICM Studio</h1>
-          </header>
-
-          <div class="studio-layout">
-            <div class="menu-frame">
-              <div class="menu-left"></div>
-              <div class="menu-right">
-                <div class="export">
-                  <button id="uploadBtn" class="btn">Upload</button>
-                  <button id="exportActual" class="btn">Export Actual</button>
-                  <button id="exportMedium" class="btn">Export Medium</button>
-                  <button id="exportSmall" class="btn">Export Small</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="image-frame">
-              <div class="canvas-wrap" id="outputWrap">
-                <canvas id="outputCanvas" aria-label="Processed image canvas" tabindex="0"></canvas>
-              </div>
-            </div>
-
-            <div class="adjust-frame">
-              <div class="panel controls-panel">
-                <div class="controls">
-                  <label class="control">
-                    <span>Blur Size</span>
-                    <input id="blurSize" type="range" min="1" max="50" value="10" />
-                    <span class="value" id="blurSizeVal">10 px</span>
-                  </label>
-                  <label class="control">
-                    <span>Rotation</span>
-                    <input id="rotation" type="range" min="0" max="360" value="0" />
-                    <span class="value" id="rotationVal">0°</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="panel spline-panel">
-                <div class="panel-header">
-                  <span>Spline Editor</span>
-                </div>
-                <div class="canvas-wrap fixed" id="splineWrap">
-                  <canvas id="splineCanvas" width="200" height="200" aria-label="Spline editor canvas" tabindex="0"></canvas>
-                </div>
-                <div class="legend">
-                  <div><span class="legend-color path"></span>Path</div>
-                  <div><span class="legend-color point"></span>Point</div>
-                </div>
-                <div class="tips">
-                  <ul>
-                    <li>Drag red squares to move points</li>
-                    <li>Tap empty area to add point (≥ 10 px from others)</li>
-                    <li>Double tap/click a point to remove it</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+          <div class="app-grid">
+            <a href="pages/icm_studio.html" class="app-card">
+              <img src="icons/icm_studio_icon.png" alt="ICM Studio Icon" class="app-icon">
+              <div class="app-title">ICM Studio</div>
+            </a>
+            <a href="pages/light_leak.html" class="app-card">
+              <img src="icons/light_leak_icon.png" alt="Light Leak Icon" class="app-icon">
+              <div class="app-title">Light Leak</div>
+            </a>
+            <a href="pages/double_exposure.html" class="app-card">
+              <img src="icons/double_exposure_icon.png" alt="Double Exposure Icon" class="app-icon">
+              <div class="app-title">Double Exposure</div>
+            </a>
+            <a href="pages/tilt_shift.html" class="app-card">
+              <img src="icons/tilt_shift_icon.png" alt="Tilt Shift Icon" class="app-icon">
+              <div class="app-title">Tilt Shift</div>
+            </a>
+            <a href="pages/chromatic.html" class="app-card">
+              <img src="icons/chromatic_icon.png" alt="Chromatic Icon" class="app-icon">
+              <div class="app-title">Chromatic</div>
+            </a>
+            <a href="pages/xfun.html" class="app-card">
+              <img src="icons/xfun_icon.png" alt="Xfun Icon" class="app-icon">
+              <div class="app-title">Xfun</div>
+            </a>
           </div>
         </section>
 
@@ -111,15 +77,8 @@
           </header>
           <div class="copy">
             <p>
-              Use the ICM Studio to upload an image, adjust the blur size and rotation, and shape the motion with the spline.
-              Drag spline points to change the path; add points by tapping; remove with a double click/tap. Crop by dragging each edge of the image.
+              Learn how to use our photo effect applications. Each app has its own dedicated page with detailed instructions and controls.
             </p>
-            <ul>
-              <li>Upload: use the Upload button</li>
-              <li>Blur Size: extent of motion along the path</li>
-              <li>Rotation: rotates the spline around its center</li>
-              <li>Export: Actual, Medium, or Small; effects and crop are preserved and scaled</li>
-            </ul>
           </div>
         </section>
 
